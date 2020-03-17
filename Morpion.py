@@ -114,14 +114,33 @@ Attention la fonction Utility est faite telle qu'on considère pouvoir étudier 
 
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ joueur    Le symbole correspondant au joueur (X/O)
-@return     Une action optimale à faire par le joueur
+@ return     Une action optimale à faire par le joueur
 '''
 def MiniMax(state, joueur):
     listeactionspossible = Action(state,joueur)
     valueetactionareturn = [-2,None]
     for action in listeactionspossible:
         #Si la value est mieux que ce qu'on avait on prend cette action
-        valeur = Result(state,action)
+        valeur = Min_Value(Result(state,action),joueur)
         if(valeur > valueetactionareturn[0]):
             valueetactionareturn = [valeur,action]
     return valueetactionareturn
+
+'''
+Renvoie la valeur d'utilité d'un état (étant donné que c'est du récursif on va l'obtenir pour tous les états)
+
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@ return    La valeur de l'utility d'un état
+'''
+
+'''
+                                                    EN COURS DE TRAVAIL
+
+def Min_Value(state, joueur):
+    if(Terminal_Test(state)) : return Utility(state,joueur)
+    #valeur infiniment basse
+    v = -2
+    for a in Action(state):
+
+'''
