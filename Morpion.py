@@ -20,13 +20,13 @@ def Action (state, joueur):
 Applique l'action à l'état state
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ action    Liste [joueur,i,j] avec joueur : 'X' ou 'O'
-@ return    /
+@ return    Le nouveau state au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 
 UNIT TEST FAIT
 '''
 def Result(state,action):
-     state[action[1]][action[2]]=action[0]
-     return
+    state[action[1]][action[2]]=action[0]
+    return state
 
 '''
 Vérifie si l'état state est terminal
@@ -36,7 +36,7 @@ Vérifie si l'état state est terminal
 
 UNIT TEST FAIT
 '''
-def Terminal_Test(state,nb):
+def Terminal_Test(state,nb=3):
     reponse = False
     plein = True
     #si toutes les cases sont remplies, fini
@@ -102,6 +102,26 @@ def Utility (state, joueur):
 
     return result
 
+'''
 
-            
+///////////////////////////////////////////////////  WORK IN PROGRESS  //////////////////////////////////////////////////////////////
 
+'''
+
+'''
+Renvoie le meilleur play à faire suivant le state donné en considérant que l'adversaire va faire les plays optimum
+Attention la fonction Utility est faite telle qu'on considère pouvoir étudier l'arbre en entier en sachant jusqu'où va nous mener chaque play
+
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@return     Une action optimale à faire par le joueur
+'''
+def MiniMax(state, joueur):
+    listeactionspossible = Action(state,joueur)
+    valueetactionareturn = [-2,None]
+    for action in listeactionspossible:
+        #Si la value est mieux que ce qu'on avait on prend cette action
+        valeur = Result(state,action)
+        if(valeur > valueetactionareturn[0]):
+            valueetactionareturn = [valeur,action]
+    return valueetactionareturn

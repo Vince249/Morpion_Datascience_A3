@@ -12,7 +12,7 @@ class TestMorpionResult(unittest.TestCase):
 
     def testResult(self):
         liste = [['X','',''],['O','X',''],['','O','O']]
-        Morpion.Result(liste,['X', 0, 1])
+        liste = Morpion.Result(liste,['X', 0, 1])
         self.assertEqual(liste, [['X','X',''],['O','X',''],['','O','O']])
 
 
