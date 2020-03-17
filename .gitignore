@@ -1,0 +1,4 @@
+#Ignore pycache and .vscode repo when commiting
+
+__pycache__/
+.vscode/
