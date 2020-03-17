@@ -67,8 +67,41 @@ def Terminal_Test(state,nb):
 
 '''
 Détermine l'intérêt d'un état
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
 @ return    +1 pour une victoire, 0 pour une défaite, -1 pour une défaite
+
+UNIT TEST FAIT
 '''
+def Utility (state, joueur):
+    #ligne
+    result = 0
+    for element in state :
+        if(element[0]==element[1] and element[2]==element[1]):
+            if(element[0] == joueur):
+                result = 1
+            else:
+                result = -1
+    #colonne
+    for i in range (len(state)):
+        listetemp = []
+        for j in range (len(state)):
+            listetemp.append(state[j][i])
+        if(listetemp[0]==listetemp[1] and listetemp[2]==listetemp[1]):
+            if(listetemp[0] == joueur):
+                result = 1
+            else:
+                result = -1
+    #diagonale
+
+    if((state[0][0] == state[1][1] and state[2][2] == state[1][1]) or (state[1][1] == state[2][0] and state[2][0] == state[0][2])):
+        if(state[0][0] == joueur):
+            result = 1
+        else:
+            result = -1
+
+    return result
+
 
             
 

@@ -38,5 +38,23 @@ class TestMorpionTerminal(unittest.TestCase):
         state = [['X','X','O'],['O','X',''],['','O','X']]
         self.assertTrue(Morpion.Terminal_Test(state,3))
 
+
+class TestMorpionUtility(unittest.TestCase):
+
+    def testUtility1(self):
+        liste = [['X','X','X'],['O','X','O'],['X','O','O']]
+        result = Morpion.Utility(liste,'X')
+        self.assertEqual(result, 1)
+
+    def testUtilitymoins1(self):
+        liste = [['X','X','X'],['O','X','O'],['X','O','O']]
+        result = Morpion.Utility(liste,'O')
+        self.assertEqual(result, -1)
+
+    def testUtility0(self):
+        liste = [['O','X','O'],['O','X','O'],['X','O','X']]
+        result = Morpion.Utility(liste,'X')
+        self.assertEqual(result, 0)
+
 if __name__ == '__main__':
     unittest.main()
