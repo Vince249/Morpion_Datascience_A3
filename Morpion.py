@@ -125,3 +125,5 @@ def MiniMax(state, joueur):
         if(valeur > valueetactionareturn[0]):
             valueetactionareturn = [valeur,action]
     return valueetactionareturn
+
+#cette ligne est a supprimé c'est un test pour commit
