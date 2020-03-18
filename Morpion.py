@@ -9,12 +9,12 @@ Liste les actions possibles à partir d'un état donné
 UNIT TEST FAIT
 '''
 def Action (state, joueur):
-    listeactions = []
+    liste_actions = []
     for i in range(len(state)):
         for j in range (len(state)):
             if(state[i][j] != 'X' and state[i][j] != 'O'):
-                listeactions.append([joueur,i,j])
-    return listeactions
+                liste_actions.append([joueur,i,j])
+    return liste_actions
 
 '''
 Applique l'action à l'état state, on procède avec la fonction .copy() pour ne pas modifier le state d'origine
@@ -112,19 +112,19 @@ Attention la fonction Utility est faite telle qu'on considère pouvoir étudier 
 
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ joueur    Le symbole correspondant au joueur (X/O)
-@ return     Une action optimale à faire par le joueur
+@ return    Une action optimale à faire par le joueur
 '''
 def MiniMax(state, joueur):
     if(joueur == 'X') : opposant = 'O'
     if(joueur == 'O') : opposant = 'X'
-    listeactionspossible = Action(state,joueur)
-    valueetactionareturn = [-2,None]
-    for action in listeactionspossible:
+    liste_actions_possible = Action(state,joueur)
+    value_et_action_a_return = [-2,None]
+    for action in liste_actions_possible:
         #Si la value est mieux que ce qu'on avait on prend cette action
         valeur = Min_Value(Result(state,action),joueur,opposant)
-        if(valeur > valueetactionareturn[0]):
-            valueetactionareturn = [valeur,action]
-    return valueetactionareturn
+        if(valeur > value_et_action_a_return[0]):
+            value_et_action_a_return = [valeur,action]
+    return value_et_action_a_return
 
 '''
 Reflexion pour le tour de l'opposant, qui va prendre l'action qui a le gain minimum pour le joueur
@@ -186,3 +186,8 @@ Vu au debug, quand on teste une action le state change. Mais quand on veut en te
 conserve son état et ajoute la nouvelle modification
 Cad en voulant tester Option 1 OU Option 2 on fait en fait Option1 OU Option 1 + 2 
 '''
+
+
+
+
+
