@@ -17,7 +17,7 @@ def Action (state, joueur):
     return listeactions
 
 '''
-Applique l'action à l'état state
+Applique l'action à l'état state, on procède avec la fonction .copy() pour ne pas modifier le state d'origine
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ action    Liste [joueur,i,j] avec joueur : 'X' ou 'O'
 @ return    Le nouveau state au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
@@ -25,8 +25,11 @@ Applique l'action à l'état state
 UNIT TEST FAIT
 '''
 def Result(state,action):
-    state[action[1]][action[2]]=action[0]
-    return state
+    resultat = []
+    for liste in state:
+        resultat.append(liste.copy())
+    resultat[action[1]][action[2]]=action[0]
+    return resultat
 
 '''
 Vérifie si l'état state est terminal
@@ -95,18 +98,13 @@ def Utility (state, joueur):
     #diagonale
 
     if((state[0][0] == state[1][1] and state[2][2] == state[1][1]) or (state[1][1] == state[2][0] and state[2][0] == state[0][2])):
-        if(state[0][0] == joueur):
+        if(state[1][1] == joueur):
             result = 1
         else:
             result = -1
 
     return result
 
-'''
-
-///////////////////////////////////////////////////  WORK IN PROGRESS  //////////////////////////////////////////////////////////////
-
-'''
 
 '''
 Renvoie le meilleur play à faire suivant le state donné en considérant que l'adversaire va faire les plays optimum
@@ -117,30 +115,74 @@ Attention la fonction Utility est faite telle qu'on considère pouvoir étudier 
 @ return     Une action optimale à faire par le joueur
 '''
 def MiniMax(state, joueur):
+    if(joueur == 'X') : opposant = 'O'
+    if(joueur == 'O') : opposant = 'X'
     listeactionspossible = Action(state,joueur)
     valueetactionareturn = [-2,None]
     for action in listeactionspossible:
         #Si la value est mieux que ce qu'on avait on prend cette action
-        valeur = Min_Value(Result(state,action),joueur)
+        valeur = Min_Value(Result(state,action),joueur,opposant)
         if(valeur > valueetactionareturn[0]):
             valueetactionareturn = [valeur,action]
     return valueetactionareturn
 
 '''
-Renvoie la valeur d'utilité d'un état (étant donné que c'est du récursif on va l'obtenir pour tous les états)
+Reflexion pour le tour de l'opposant, qui va prendre l'action qui a le gain minimum pour le joueur
 
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ joueur    Le symbole correspondant au joueur (X/O)
+@ opposant  Le symbole correspondant à l'adversaire (X/O)
 @ return    La valeur de l'utility d'un état
 '''
 
-'''
-                                                    EN COURS DE TRAVAIL
+def Min_Value(state, joueur,opposant):
+    if(Terminal_Test(state)) : return Utility(state,joueur)
+    #valeur infiniment haute
+    v = 2
+    #Ici ce sont les actions de l'opposant qu'on prend car c'est son tour
+    for a in Action(state,opposant):
+        v = min(v,Max_Value(Result(state,a),joueur,opposant))
+    return v
 
-def Min_Value(state, joueur):
+
+'''
+Reflexion pour le tour du joueur, qui va prendre l'action qui a le gain maximum pour lui
+
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@ opposant  Le symbole correspondant à l'adversaire (X/O)
+@ return    La valeur de l'utility d'un état
+'''
+
+
+def Max_Value(state, joueur, opposant):
     if(Terminal_Test(state)) : return Utility(state,joueur)
     #valeur infiniment basse
     v = -2
-    for a in Action(state):
+    #Ici ce sont les actions du joueur qu'on prend car c'est son tour
+    for a in Action(state,joueur):
+        v = max(v,Min_Value(Result(state,a),joueur,opposant))
+    return v
 
+
+
+
+etat = [['X','','O'],['X','O',''],['','','']]
+print(MiniMax(etat,'X'))
+
+
+
+'''
+REFLEXION
+
+L'algo perd contre un être humain
+Il semble mettre son symbole dans le premier emplacement où il est 'possible' de gagner
+De ce que je vois, il ne privilégie pas une victoire immédiate assurée à un play lui permettant théoriquement
+de gagner plus tard
+Dans la situation [['X','','O'],['X','O',''],['','','']] il met son X en [0,1]
+Vu au debug, l'action ['X',0,1] renvoie une valeur finale de 1 c'est pour cela qu'il la conserve
+Pourquoi renvoie-t-elle 1 ?
+Vu au debug, quand on teste une action le state change. Mais quand on veut en tester une autre, le state
+conserve son état et ajoute la nouvelle modification
+Cad en voulant tester Option 1 OU Option 2 on fait en fait Option1 OU Option 1 + 2 
 '''

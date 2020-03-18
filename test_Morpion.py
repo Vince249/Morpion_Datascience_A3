@@ -47,8 +47,8 @@ class TestMorpionUtility(unittest.TestCase):
         self.assertEqual(result, 1)
 
     def testUtilitymoins1(self):
-        liste = [['X','X','X'],['O','X','O'],['X','O','O']]
-        result = Morpion.Utility(liste,'O')
+        liste = [['X','X','O'],['X','O','O'],['O','X','']]
+        result = Morpion.Utility(liste,'X')
         self.assertEqual(result, -1)
 
     def testUtility0(self):
