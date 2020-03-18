@@ -121,9 +121,9 @@ def MiniMax(state, joueur):
     value_et_action_a_return = [-2,None]
     for action in liste_actions_possible:
         #Si la value est mieux que ce qu'on avait on prend cette action
-        valeur = Min_Value(Result(state,action),joueur,opposant)
-        if(valeur > value_et_action_a_return[0]):
-            value_et_action_a_return = [valeur,action]
+        value = Min_Value(Result(state,action),joueur,opposant)
+        if(value > value_et_action_a_return[0]):
+            value_et_action_a_return = [value,action]
     return value_et_action_a_return
 
 '''
@@ -168,7 +168,7 @@ def Max_Value(state, joueur, opposant):
 
 
 etat = [['X','','O'],['X','O',''],['','','']]
-print(MiniMax(etat,'X'))
+print("MiniMax : ",MiniMax(etat,'X'))
 
 
 
@@ -189,5 +189,82 @@ Cad en voulant tester Option 1 OU Option 2 on fait en fait Option1 OU Option 1 +
 
 
 
+####################### work in progress #######################
+''' 
+Renvoie le meilleur play à faire suivant le state donné en considérant que l'adversaire va faire les plays optimum
+mais ici on va élaguer des options afin de gagner en rapidité d'exécution (remplacerai fonction MiniMax)
 
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@ return    Une action optimale à faire par le joueur
+'''
+def Alpha_Beta(state,joueur):
+    if(joueur == 'X') : opposant = 'O'
+    if(joueur == 'O') : opposant = 'X'
+    liste_actions_possible = Action(state,joueur)
+    value_et_action_a_return = [-2,None]
+    for action in liste_actions_possible:
+        #Si la value est mieux que ce qu'on avait on prend cette action
+        value = Max_Value_Alpha_Beta(Result(state,action),joueur,opposant,-2,2) #-2 et 2 représentent -infini et +infini
+        if(value > value_et_action_a_return[0]):
+            value_et_action_a_return = [value,action]
+    return value_et_action_a_return
+
+
+
+'''
+Reflexion pour le tour de l'opposant, qui va prendre l'action qui a le gain minimum pour le joueur avec la méthode alpha beta (plus opti)
+
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@ opposant  Le symbole correspondant à l'adversaire (X/O)
+@ return    La valeur de l'utility d'un état
+'''
+
+def Min_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
+    if(Terminal_Test(state)) : return Utility(state,joueur)
+    fin_fonction = False #on doit s'arrêter si on trouve une value inférieur à alpha
+    #valeur infiniment haute
+    v = 2
+    #Ici ce sont les actions de l'opposant qu'on prend car c'est son tour
+    for a in Action(state,opposant):
+        if (fin_fonction) : break #permet de sortir de la boucle, check sur https://courspython.com/boucles.html si tu veux voir comment ça marche
+        v = min(v,Max_Value_Alpha_Beta(Result(state,a),joueur,opposant,alpha,beta))
+        if (v <= alpha) : fin_fonction = True
+        beta = min(beta,v)
+    return v
+
+
+'''
+Reflexion pour le tour du joueur, qui va prendre l'action qui a le gain maximum pour lui avec la méthode alpha beta (plus opti)
+
+@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur    Le symbole correspondant au joueur (X/O)
+@ opposant  Le symbole correspondant à l'adversaire (X/O)
+@ return    La valeur de l'utility d'un état
+'''
+
+
+def Max_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
+    if(Terminal_Test(state)) : return Utility(state,joueur)
+    fin_fonction = False #on doit s'arrêter si on trouve une value inférieur à alpha
+    #valeur infiniment haute
+    v = -2
+    #Ici ce sont les actions de l'opposant qu'on prend car c'est son tour
+    for a in Action(state,joueur):
+        if (fin_fonction) : break #permet de sortir de la boucle, check sur https://courspython.com/boucles.html si tu veux voir comment ça marche
+        v = max(v,Min_Value_Alpha_Beta(Result(state,a),joueur,opposant,alpha,beta))
+        if (v >= beta) : fin_fonction = True
+        alpha = max(alpha,v)
+    return v
+
+
+etat2 = [['X','','O'],['X','O',''],['','','']]
+print("Alpha_Beta :",Alpha_Beta(etat2,'X'))
+
+
+'''
+l'algo attribut la value 1 à ['X', 0, 1] donc il me renvoit celle-ci
+je verrai demain ou tout à l'heure pour résoudre le problème
+'''
 
