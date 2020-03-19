@@ -1,5 +1,4 @@
 import time
-t0=time.time()
 
 '''
 Liste les actions possibles à partir d'un état donné
@@ -63,7 +62,7 @@ def Terminal_Test(state,nb=3):
                     reponse = True
             if(not reponse):
                 #diagonales
-                if((state[0][0] == state[1][1] and state[2][2] == state[1][1]) or (state[1][1] == state[2][0] and state[2][0] == state[0][2])):
+                if((state[0][0] == state[1][1] and state[2][2] == state[1][1] and (state[1][1] == 'X' or state[1][1] == 'O')) or (state[1][1] == state[2][0] and state[2][0] == state[0][2] and (state[2][0] =='X' or state[2][0] =='O'))):
                     reponse = True
     else:
         reponse= True
@@ -98,7 +97,7 @@ def Utility (state, joueur):
                 result = -1
     #diagonale
 
-    if((state[0][0] == state[1][1] and state[2][2] == state[1][1]) or (state[1][1] == state[2][0] and state[2][0] == state[0][2])):
+    if((state[0][0] == state[1][1] and state[2][2] == state[1][1] ) or (state[1][1] == state[2][0] and state[2][0] == state[0][2])):
         if(state[1][1] == joueur):
             result = 1
         else:
@@ -118,14 +117,8 @@ Attention la fonction Utility est faite telle qu'on considère pouvoir étudier 
 def MiniMax(state, joueur):
     if(joueur == 'X') : opposant = 'O'
     if(joueur == 'O') : opposant = 'X'
-    liste_actions_possible = Action(state,joueur)
-    value_et_action_a_return = [-2,None]
-    for action in liste_actions_possible:
-        #Si la value est mieux que ce qu'on avait on prend cette action
-        value = Min_Value(Result(state,action),joueur,opposant)
-        if(value > value_et_action_a_return[0]):
-            value_et_action_a_return = [value,action]
-    return value_et_action_a_return
+    resultat = Max_Value(state,joueur,opposant,True)
+    return resultat
 
 '''
 Reflexion pour le tour de l'opposant, qui va prendre l'action qui a le gain minimum pour le joueur
@@ -156,42 +149,23 @@ Reflexion pour le tour du joueur, qui va prendre l'action qui a le gain maximum 
 '''
 
 
-def Max_Value(state, joueur, opposant):
+def Max_Value(state, joueur, opposant, renvoyer_action = False):
     if(Terminal_Test(state)) : return Utility(state,joueur)
     #valeur infiniment basse
     v = -2
+    if(renvoyer_action):
+        sauvegarde_action = []
+        #Ici ce sont les actions du joueur qu'on prend car c'est son tour
+        for a in Action(state,joueur):
+            ancien_v = v
+            v = max(v,Min_Value(Result(state,a),joueur,opposant))
+            if(ancien_v != v): sauvegarde_action=a
+        return [v,sauvegarde_action]
     #Ici ce sont les actions du joueur qu'on prend car c'est son tour
     for a in Action(state,joueur):
         v = max(v,Min_Value(Result(state,a),joueur,opposant))
     return v
 
-
-
-
-#etat = [['X','','O'],['X','O',''],['','','']] #cas pour voir si l'IA gagne
-#etat = [['X','X','O'],['O','O',''],['X','','']] #cas pour voir si l'IA ne perd pas
-#print("MiniMax : ",MiniMax(etat,'X'))
-#print(time.time()-t0) #affiche temps d'exécution
-
-
-'''
-REFLEXION
-
-L'algo perd contre un être humain
-Il semble mettre son symbole dans le premier emplacement où il est 'possible' de gagner
-De ce que je vois, il ne privilégie pas une victoire immédiate assurée à un play lui permettant théoriquement
-de gagner plus tard
-Dans la situation [['X','','O'],['X','O',''],['','','']] il met son X en [0,1]
-Vu au debug, l'action ['X',0,1] renvoie une valeur finale de 1 c'est pour cela qu'il la conserve
-Pourquoi renvoie-t-elle 1 ?
-Vu au debug, quand on teste une action le state change. Mais quand on veut en tester une autre, le state
-conserve son état et ajoute la nouvelle modification
-Cad en voulant tester Option 1 OU Option 2 on fait en fait Option1 OU Option 1 + 2 
-'''
-
-
-
-####################### work in progress #######################
 ''' 
 Renvoie le meilleur play à faire suivant le state donné en considérant que l'adversaire va faire les plays optimum
 mais ici on va élaguer des options afin de gagner en rapidité d'exécution (remplacerai fonction MiniMax)
@@ -203,36 +177,29 @@ mais ici on va élaguer des options afin de gagner en rapidité d'exécution (re
 def Alpha_Beta(state,joueur):
     if(joueur == 'X') : opposant = 'O'
     if(joueur == 'O') : opposant = 'X'
-    liste_actions_possible = Action(state,joueur)
-    value_et_action_a_return = [-2,None]
-    for action in liste_actions_possible:
-        value = Max_Value_Alpha_Beta(Result(state,action),joueur,opposant,2,-2) #-2 et 2 représentent -infini et +infini
-        #Si la value est mieux que ce qu'on avait on prend cette action
-        if(value > value_et_action_a_return[0]):
-            value_et_action_a_return = [value,action]
-    return value_et_action_a_return
+    resultat = Max_Value_Alpha_Beta(state,joueur,opposant,-2,2,True)
+    return resultat
 
 
-
-'''
+"""
 Reflexion pour le tour de l'opposant, qui va prendre l'action qui a le gain minimum pour le joueur avec la méthode alpha beta (plus opti)
 
 @ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
 @ joueur    Le symbole correspondant au joueur (X/O)
 @ opposant  Le symbole correspondant à l'adversaire (X/O)
+@ alpha     La valeur max déjà obtenue avec les autres options à cet étage, permet de déterminer quand faire une coupure alpha
+@ beta      La valeur min déjà obtenue avec les autres options à cet étage, permet de déterminer quand faire une coupure beta
 @ return    La valeur de l'utility d'un état
-'''
+"""
 
 def Min_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
     if(Terminal_Test(state)) : return Utility(state,joueur)
-    fin_fonction = False #on doit s'arrêter si on trouve une value inférieur à alpha
     #valeur infiniment haute
     v = 2
     #Ici ce sont les actions de l'opposant qu'on prend car c'est son tour
     for a in Action(state,opposant):
-        if (fin_fonction) : break #permet de sortir de la boucle, check sur https://courspython.com/boucles.html si tu veux voir comment ça marche
         v = min(v,Max_Value_Alpha_Beta(Result(state,a),joueur,opposant,alpha,beta))
-        if (v <= alpha) : fin_fonction = True
+        if (v <= alpha) : return v
         beta = min(beta,v)
     return v
 
@@ -240,52 +207,53 @@ def Min_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
 '''
 Reflexion pour le tour du joueur, qui va prendre l'action qui a le gain maximum pour lui avec la méthode alpha beta (plus opti)
 
-@ state     Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
-@ joueur    Le symbole correspondant au joueur (X/O)
-@ opposant  Le symbole correspondant à l'adversaire (X/O)
-@ return    La valeur de l'utility d'un état
+@ state             Une liste de liste au format [[-,-,-],[-,-,-],[-,-,-]] avec les symboles correspondants
+@ joueur            Le symbole correspondant au joueur (X/O)
+@ opposant          Le symbole correspondant à l'adversaire (X/O)
+@ alpha             La valeur max déjà obtenue avec les autres options à cet étage, permet de déterminer quand faire une coupure alpha
+@ beta              La valeur min déjà obtenue avec les autres options à cet étage, permet de déterminer quand faire une coupure beta
+@ renvoyer_action   Détermine s'il faut uniquement renvoyer la value ou aussi l'action associée
+@ return            La valeur de l'utility d'un état (+ l'action associée)
 '''
 
 
-def Max_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
+def Max_Value_Alpha_Beta(state,joueur,opposant,alpha,beta, renvoyer_action = False):
     if(Terminal_Test(state)) : return Utility(state,joueur)
-    fin_fonction = False #on doit s'arrêter si on trouve une value inférieur à alpha
     #valeur infiniment haute
     v = -2
+    if(renvoyer_action):
+        sauvegarde_action = []
+        #Ici ce sont les actions du joueur qu'on prend car c'est son tour
+        for a in Action(state,joueur):
+            ancien_v = v
+            v = max(v,Min_Value_Alpha_Beta(Result(state,a),joueur,opposant,alpha,beta))
+            if(ancien_v != v): sauvegarde_action=a
+            if (v >= beta) : return [v,sauvegarde_action]
+            alpha = max(alpha,v)
+        return [v,sauvegarde_action]
     #Ici ce sont les actions de l'opposant qu'on prend car c'est son tour
     for a in Action(state,joueur):
-        if (fin_fonction) : break #permet de sortir de la boucle, check sur https://courspython.com/boucles.html si tu veux voir comment ça marche
         v = max(v,Min_Value_Alpha_Beta(Result(state,a),joueur,opposant,alpha,beta))
-        if (v >= beta) : fin_fonction = True
+        if (v >= beta) : return v
         alpha = max(alpha,v)
     return v
 
 
-#etat2 = [['X','','O'],['X','O',''],['','','']] #cas pour voir si l'IA gagne
-#etat2 = [['X','X','O'],['O','O',''],['X','','']] #cas pour voir si l'IA ne perd pas
-#print("Alpha_Beta :",Alpha_Beta(etat2,'X'))
-#print(time.time()-t0) #affiche temps d'exécution
 
+"""
+! Je sais que la disposition que j'ai mise en dessous est impossible parce qu'il y a trop de O
+! Mais elle permet d'assurer qu'un élagage ait lieu 
+! Placer le X en [2,0] fait gagner direct, le placer en [2,1] te laisse 2 possibilités pour le placement du O (les deux faisant perdre le joueur)
+! Si l'élagage fonctionne correctement, l'algo devrait placer O en [2,0], voir que la value est -1 et donc élager l'autre possibilité (faire une coupure alpha)
+? Et c'est bien ce qui a lieu, tu peux le voir au debug
 
-'''
-si je mets alpha à -2 et beta à 2 avec les exemple en commentaires au-dessus
-l'algo attribut la value 1 à ['X', 0, 1] donc il me renvoit celle-ci
-car il teste de jouer à la première position libre en parcourant ligne puis colonne
-puis il continue à jouer sur les emplacements libre jusqu'à gagner.
-En l'occurence ici il joue en [0,1] (dans sa "tête") puis teste les autres positions
-et voit qu'il gagne en [2,0]. Donc pour lui, jouer en [0,1] va lui permettre de gagner
-'''
-
-'''
-si je mets alpha à 2 et beta à -2 avec les exemple en commentaires au-dessus
-il semblerait que cela fonctionne, l'IA joue un play (dans sa "tête") et regarde si l'adversaire 
-gagne sur le play suivant (dès qu'il trouve ce play, il s'arrête de chercher). 
-Si c'est le cas, l'IA joue un autre play (dans sa "tête") jusqu'à trouver le play gagnant
-ou le play qui ne la fait pas perdre
-'''
-
-'''
-PROBLEME : quand on commence une partie à partir de rien, l'IA arrive à faire des play qui 
-pourraient la faire gagner mais ne fait pas les plays qui l'empêche de perdre
-'''
-
+todo Fais un test pour chacun avec un etat vide ( [['','',''],['','',''],['','','']]  ) avec un vrai élagage et surtout en utilisant correctement les fonctions principales y a une vraie différence
+"""
+t0=time.time()
+etat = [['X','O','O'],['X','O','O'],['','','']] 
+print("MiniMax : ",MiniMax(etat,'X'))
+print(time.time()-t0) #affiche temps d'exécution
+t1=time.time()
+etat2 = [['X','O','O'],['X','O','O'],['','','']] 
+print("Alpha_Beta :",Alpha_Beta(etat2,'X'))
+print(time.time()-t1) #affiche temps d'exécution
