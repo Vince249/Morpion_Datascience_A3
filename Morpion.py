@@ -1,4 +1,5 @@
-#PokemonShowdown
+import time
+t0=time.time()
 
 '''
 Liste les actions possibles à partir d'un état donné
@@ -167,9 +168,10 @@ def Max_Value(state, joueur, opposant):
 
 
 
-etat = [['X','','O'],['X','O',''],['','','']]
-print("MiniMax : ",MiniMax(etat,'X'))
-
+#etat = [['X','','O'],['X','O',''],['','','']] #cas pour voir si l'IA gagne
+#etat = [['X','X','O'],['O','O',''],['X','','']] #cas pour voir si l'IA ne perd pas
+#print("MiniMax : ",MiniMax(etat,'X'))
+#print(time.time()-t0) #affiche temps d'exécution
 
 
 '''
@@ -204,8 +206,8 @@ def Alpha_Beta(state,joueur):
     liste_actions_possible = Action(state,joueur)
     value_et_action_a_return = [-2,None]
     for action in liste_actions_possible:
+        value = Max_Value_Alpha_Beta(Result(state,action),joueur,opposant,2,-2) #-2 et 2 représentent -infini et +infini
         #Si la value est mieux que ce qu'on avait on prend cette action
-        value = Max_Value_Alpha_Beta(Result(state,action),joueur,opposant,-2,2) #-2 et 2 représentent -infini et +infini
         if(value > value_et_action_a_return[0]):
             value_et_action_a_return = [value,action]
     return value_et_action_a_return
@@ -259,12 +261,31 @@ def Max_Value_Alpha_Beta(state,joueur,opposant,alpha,beta):
     return v
 
 
-etat2 = [['X','','O'],['X','O',''],['','','']]
-print("Alpha_Beta :",Alpha_Beta(etat2,'X'))
+#etat2 = [['X','','O'],['X','O',''],['','','']] #cas pour voir si l'IA gagne
+#etat2 = [['X','X','O'],['O','O',''],['X','','']] #cas pour voir si l'IA ne perd pas
+#print("Alpha_Beta :",Alpha_Beta(etat2,'X'))
+#print(time.time()-t0) #affiche temps d'exécution
 
 
 '''
+si je mets alpha à -2 et beta à 2 avec les exemple en commentaires au-dessus
 l'algo attribut la value 1 à ['X', 0, 1] donc il me renvoit celle-ci
-je verrai demain ou tout à l'heure pour résoudre le problème
+car il teste de jouer à la première position libre en parcourant ligne puis colonne
+puis il continue à jouer sur les emplacements libre jusqu'à gagner.
+En l'occurence ici il joue en [0,1] (dans sa "tête") puis teste les autres positions
+et voit qu'il gagne en [2,0]. Donc pour lui, jouer en [0,1] va lui permettre de gagner
+'''
+
+'''
+si je mets alpha à 2 et beta à -2 avec les exemple en commentaires au-dessus
+il semblerait que cela fonctionne, l'IA joue un play (dans sa "tête") et regarde si l'adversaire 
+gagne sur le play suivant (dès qu'il trouve ce play, il s'arrête de chercher). 
+Si c'est le cas, l'IA joue un autre play (dans sa "tête") jusqu'à trouver le play gagnant
+ou le play qui ne la fait pas perdre
+'''
+
+'''
+PROBLEME : quand on commence une partie à partir de rien, l'IA arrive à faire des play qui 
+pourraient la faire gagner mais ne fait pas les plays qui l'empêche de perdre
 '''
 
