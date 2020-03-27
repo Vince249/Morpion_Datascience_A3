@@ -1,3 +1,5 @@
+#Rémi GUILLON BONY et Vincent POUPET
+
 import time
 import Fonctions_de_base
 import MiniMax
