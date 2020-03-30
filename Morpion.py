@@ -51,4 +51,3 @@ print('Algorithme MiniMax')
 print('Solution trouvée en '+ str(time.time()-t0 ) + ' s')
 print("L'IA recommande de placer " + str(result_MiniMax[1][0]) + " en " + str(result_MiniMax[1][1]) + " " + str(result_MiniMax[1][2]))
 
-
